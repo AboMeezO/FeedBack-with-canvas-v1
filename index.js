@@ -4,9 +4,9 @@ const {
   AttachmentBuilder,
   EmbedBuilder,
 } = require("discord.js");
+const chalk = require("chalk");
 const { createCanvas, loadImage } = require("canvas");
 const fs = require("fs");
-const chalk = require("chalk");
 const Config = require("./config.json");
 let Database = JSON.parse(fs.readFileSync("./Database.json", "utf8"));
 
@@ -30,17 +30,20 @@ client.on("messageCreate", async (message) => {
 
   const args = message.content.trim().split(/ +/);
   const command = args.shift().toLowerCase();
-  //help
+
   if (command === `${Config.prefix}help`) {
-    const embedhelp = new EmbedBuilder().setColor(Config.color).setTitle("Help")
+    const embedhelp = new EmbedBuilder().setColor(Config.color).setTitle("Help Command List :")
       .setDescription(`
-    ${Config.prefix}setchannel <#channel>
-    ${Config.prefix}setimage <attach image>
-    ${Config.prefix}setreaction <emoji>
-    `);
+    ${Config.prefix}setchannel <#channel> : تعيين القناة
+    ${Config.prefix}setimage <attach image> : تعيين الصورة
+    ${Config.prefix}setreaction <emoji> : تعيين الرياكشن
+    `)
+    .setFooter({ text: `Developed by: Khaton` })
+    .setTimestamp();
+
     return message.reply({ embeds: [embedhelp] });
   }
-  //setchannel
+
   if (command === `${Config.prefix}setchannel`) {
     const mentioned = message.mentions.channels.first();
     if (!mentioned) return message.reply("يرجى منشن القناة مثل: #channel");
@@ -48,7 +51,7 @@ client.on("messageCreate", async (message) => {
     saveDatabase();
     return message.reply(`تم تعيين القناة إلى ${mentioned.name}`);
   }
-  //setimage
+
   if (command === `${Config.prefix}setimage`) {
     const attachment = message.attachments.first();
     if (!attachment) return message.reply("ارفق صورة مع الأمر.");
@@ -58,14 +61,14 @@ client.on("messageCreate", async (message) => {
     saveDatabase();
     return message.reply("تم تعيين الصورة بنجاح.");
   }
-  //setreaction
+
   if (command === `${Config.prefix}setreaction`) {
     if (!args[0]) return message.reply("يرجى كتابة الإيموجي بعد الأمر.");
     Database.Reaction = args[0];
     saveDatabase();
     return message.reply(`تم تعيين الرياكشن إلى ${args[0]}`);
   }
-  //feedback
+
   if (message.channel.id === Database.ChannelID && Database.ImageURL) {
     try {
       const image = await loadImage(Database.ImageURL);
@@ -134,8 +137,7 @@ client.on("messageCreate", async (message) => {
       });
 
       const messagesent = await message.channel.send({
-        content: `شكراً لتقييمك <@${message.author.id}>`,
-
+        content: `شكراً لتقييمك **${message.author}**`,
         files: [attachment],
       });
 
@@ -187,13 +189,11 @@ async function replaceMentions(message) {
   return content;
 }
 client.once("ready", () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
   console.log(chalk.green(`bot has been logged in as ${client.user.tag}`));
 
   console.log(
     chalk.blueBright(String.raw`
-
-
-
  ██▒   █▓ ██▓  ██████  ██▓ ▒█████   ███▄    █                                  
 ▓██░   █▒▓██▒▒██    ▒ ▓██▒▒██▒  ██▒ ██ ▀█   █                                  
  ▓██  █▒░▒██▒░ ▓██▄   ▒██▒▒██░  ██▒▓██  ▀█ ██▒                                 
@@ -203,7 +203,8 @@ client.once("ready", () => {
    ░ ░░   ▒ ░░ ░▒  ░ ░ ▒ ░  ░ ▒ ▒░ ░ ░░   ░ ▒░                                 
      ░░   ▒ ░░  ░  ░   ▒ ░░ ░ ░ ▒     ░   ░ ░                                  
       ░   ░        ░   ░      ░ ░           ░                                  
- ▄▄▄ ░     ██▀███  ▄▄▄█████▓     ██████ ▄▄▄█████▓ █    ██ ▓█████▄  ██▓ ▒█████  
+     ░                                                                         
+ ▄▄▄       ██▀███  ▄▄▄█████▓     ██████ ▄▄▄█████▓ █    ██ ▓█████▄  ██▓ ▒█████  
 ▒████▄    ▓██ ▒ ██▒▓  ██▒ ▓▒   ▒██    ▒ ▓  ██▒ ▓▒ ██  ▓██▒▒██▀ ██▌▓██▒▒██▒  ██▒
 ▒██  ▀█▄  ▓██ ░▄█ ▒▒ ▓██░ ▒░   ░ ▓██▄   ▒ ▓██░ ▒░▓██  ▒██░░██   █▌▒██▒▒██░  ██▒
 ░██▄▄▄▄██ ▒██▀▀█▄  ░ ▓██▓ ░      ▒   ██▒░ ▓██▓ ░ ▓▓█  ░██░░▓█▄   ▌░██░▒██   ██░
@@ -212,8 +213,7 @@ client.once("ready", () => {
   ▒   ▒▒ ░  ░▒ ░ ▒░    ░       ░ ░▒  ░ ░    ░    ░░▒░ ░ ░  ░ ▒  ▒  ▒ ░  ░ ▒ ▒░ 
   ░   ▒     ░░   ░   ░         ░  ░  ░    ░       ░░░ ░ ░  ░ ░  ░  ▒ ░░ ░ ░ ▒  
       ░  ░   ░                       ░              ░        ░     ░      ░ ░  
-                                                           ░                                             
-                                               
+                                                           ░                                                              
                                             
 `)
   );
@@ -224,5 +224,4 @@ client.once("ready", () => {
   );
   console.log(chalk.yellow(`© 2025 Vision Art Studios. All rights reserved.`));
 });
-
 client.login(Config.token);
